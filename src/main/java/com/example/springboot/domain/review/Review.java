@@ -1,53 +1,61 @@
 package com.example.springboot.domain.review;
 
 import com.example.springboot.domain.artist.Artist;
+import com.example.springboot.domain.photoreview.PhotoReview;
 import com.example.springboot.domain.show.Show;
 import com.example.springboot.domain.member.Member;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-enum Seat{
-    FLOOR, SEAT
-}
-
+@Table(name = "Review")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-
 public class Review {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reviewId;
+    @Column(name = "review_id")
+    private Long id;
 
+    @Column(name = "writeTime", nullable = false)
     private LocalDateTime writeTime;
 
-    @ManyToOne
-    @JoinColumn(name = "memberId")
-    private Member writer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-    @Enumerated(EnumType.ORDINAL) //1(층)
-    private Seat floor = Seat.FLOOR;
-    @Enumerated(EnumType.STRING) //A15
-    private Seat seat = Seat.SEAT;
+    @Embedded
+    private Seat seat;
 
-    @ManyToOne
-    @JoinColumn(name = "showId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "show_id")
     private Show show;
 
     @ManyToOne
-    @JoinColumn(name = "artistId")
+    @JoinColumn(name = "artist_id")
     private Artist artist;
 
-    private Float evaluation;
+    @Embedded
+    private Evaluation evaluation;
 
-//    private List<String> pictures = new ArrayList<>;
+    @Column(name = "text_review", nullable = false, columnDefinition = "varchar")
+    private String textReview;  //서술형 후기
+
+    @OneToMany(
+            mappedBy = "review",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true
+    )
+    private List<PhotoReview> photoReviews = new ArrayList<>();
 
     @Builder
-    public Review(Seat floor, Seat seat, Float evaluation){
-        this.floor = floor;
+    public Review(Seat floor, Seat seat, Evaluation evaluation){
         this.seat = seat;
         this.evaluation = evaluation;
     }

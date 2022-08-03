@@ -2,29 +2,38 @@ package com.example.springboot.domain.scrap;
 
 import com.example.springboot.domain.member.Member;
 import com.example.springboot.domain.review.Review;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
 
+@Table(name = "Scrap")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 
 public class Scrap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long scrapId;
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "memberId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne
-    @JoinColumn(name = "reviewId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id")
     private Review review;
 
-    private Date scrapDate;
+    private Date scrapDate; //스크랩 날짜.
+
+    @Builder
+    public Scrap(Member member, Review review){
+        this.member = member;
+        this.review = review;
+    }
 
 }
